@@ -4,66 +4,65 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace Aplikacija_za_finansiije
+namespace Aplikacija_za_finansije
 {
     public partial class Form1 : Form
     {
         // Colors
-        private readonly Color ColorPrimary = Color.FromArgb(30, 136, 160);
-        private readonly Color ColorBg = Color.FromArgb(245, 248, 252);
-        private readonly Color ColorCard = Color.White;
-        private readonly Color ColorText = Color.FromArgb(30, 40, 60);
-        private readonly Color ColorMuted = Color.FromArgb(120, 140, 165);
-        private readonly Color ColorGreen = Color.FromArgb(34, 197, 94);
-        private readonly Color ColorRed = Color.FromArgb(239, 68, 68);
-        private readonly Color ColorGold = Color.FromArgb(234, 179, 8);
+        Color Primarna_boja = Color.FromArgb(30, 136, 160);
+        Color Pozadina_boja = Color.FromArgb(245, 248, 252);
+        Color Bela = Color.White;
+        Color Tekst_boja = Color.FromArgb(30, 40, 60);
+        Color Svetlo_plava = Color.FromArgb(120, 140, 165);
+        Color Zelena = Color.FromArgb(34, 197, 94);
+        Color Crvena = Color.FromArgb(239, 68, 68);
+        Color Zlatna = Color.FromArgb(234, 179, 8);
 
-        private string[] meseci = { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec" };
-        private TextBox[] tbPrihodi = new TextBox[12];
-        private TextBox[] tbRashodi = new TextBox[12];
+        string[] meseci = { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Avg", "Sep", "Okt", "Nov", "Dec" };
+        TextBox[] tbPrihodi = new TextBox[12];
+        TextBox[] tbRashodi = new TextBox[12];
 
         // Extra labels
-        private TextBox[] tbDodatniOpis = new TextBox[5];
-        private TextBox[] tbDodatniIznos = new TextBox[5];
-        private ComboBox[] cbDodatniTip = new ComboBox[5];
+        TextBox[] tbDodatniOpis = new TextBox[5];
+        TextBox[] tbDodatniIznos = new TextBox[5];
+        ComboBox[] cbDodatniTip = new ComboBox[5];
 
-        private TextBox tbIme, tbPrezime;
-        private Panel panelGrafikon;
-        private Label lblUkupnoPrihodi, lblUkupnoRashodi, lblPorez, lblNeto, lblProsek;
+        TextBox tbIme, tbPrezime;
+        Panel panelGrafikon;
+        Label lblUkupnoPrihodi, lblUkupnoRashodi, lblPorez, lblNeto, lblProsek;
 
-        private TabControl tabControl;
+        TabControl tabControl;
 
         public Form1()
         {
             InitializeComponent();
-            this.Text = "Finansijski Menadžment";
+            this.Text = "Aplikacija za finansije";
             this.Size = new Size(1200, 850);
-            this.MinimumSize = new Size(1000, 700);
-            this.BackColor = ColorBg;
+            this.BackColor =  Pozadina_boja;
             this.Font = new Font("Segoe UI", 9f);
-            this.StartPosition = FormStartPosition.CenterScreen;
+            
 
-            BuildUI();
+            Glavni();
         }
 
-        private void BuildUI()
+        private void Glavni()
         {
             // Header
             Panel header = new Panel
             {
                 Dock = DockStyle.Top,
                 Height = 70,
-                BackColor = ColorPrimary
+                BackColor = Primarna_boja
             };
-            Label lblTitle = new Label
+            Label Naslov = new Label
             {
-                Text = "??  Finansijski Menadžment",
+                Text = "Aplikacija za finansije",
                 Font = new Font("Segoe UI", 18f, FontStyle.Bold),
-                ForeColor = Color.White,
+                ForeColor = Bela,
                 AutoSize = true,
                 Location = new Point(20, 18)
             };
-            header.Controls.Add(lblTitle);
+            header.Controls.Add(Naslov);
             this.Controls.Add(header);
 
             // Tab control
@@ -73,14 +72,13 @@ namespace Aplikacija_za_finansiije
                 Font = new Font("Segoe UI", 10f),
                 Padding = new Point(20, 8)
             };
-            tabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
-            tabControl.DrawItem += TabControl_DrawItem;
+            
 
-            TabPage tabUnos = new TabPage("  Unos podataka  ") { BackColor = ColorBg };
-            TabPage tabAnaliza = new TabPage("  Analiza & Grafikon  ") { BackColor = ColorBg };
+            TabPage tabUnos = new TabPage("  Unos podataka  ") { BackColor = Pozadina_boja };
+            TabPage tabAnaliza = new TabPage("  Analiza & Grafikon  ") { BackColor = Pozadina_boja };
 
-            BuildUnosTab(tabUnos);
-            BuildAnalizaTab(tabAnaliza);
+            UnosTab(tabUnos);
+            AnalizaTab(tabAnaliza);
 
             tabControl.TabPages.Add(tabUnos);
             tabControl.TabPages.Add(tabAnaliza);
@@ -88,47 +86,35 @@ namespace Aplikacija_za_finansiije
             tabControl.BringToFront();
         }
 
-        private void TabControl_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            TabPage page = tabControl.TabPages[e.Index];
-            Rectangle rect = tabControl.GetTabRect(e.Index);
-            bool selected = (tabControl.SelectedIndex == e.Index);
+        
 
-            using (SolidBrush bg = new SolidBrush(selected ? ColorPrimary : Color.FromArgb(220, 230, 240)))
-                e.Graphics.FillRectangle(bg, rect);
-
-            using (SolidBrush fg = new SolidBrush(selected ? Color.White : ColorMuted))
-            using (StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                e.Graphics.DrawString(page.Text, new Font("Segoe UI", 10f, selected ? FontStyle.Bold : FontStyle.Regular), fg, rect, sf);
-        }
-
-        private void BuildUnosTab(TabPage tab)
+        void UnosTab(TabPage tab)
         {
             Panel scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(15) };
 
             int y = 15;
 
             // Li?ni podaci
-            Panel cardLicni = CreateCard(scroll, "??  Li?ni podaci", ref y, 100);
-            AddLabelInCard(cardLicni, "Ime:", 10, 40);
-            tbIme = AddTextBoxInCard(cardLicni, 80, 40, 200);
-            AddLabelInCard(cardLicni, "Prezime:", 300, 40);
-            tbPrezime = AddTextBoxInCard(cardLicni, 380, 40, 200);
+            Panel cardLicni = Kartica(scroll, "Licni podaci", ref y, 100);
+            Pravi_Label(cardLicni, "Ime:", 10, 40);
+            tbIme = Pravi_TextBox(cardLicni, 80, 40, 200);
+            Pravi_Label(cardLicni, "Prezime:", 300, 40);
+            tbPrezime = Pravi_TextBox(cardLicni, 380, 40, 200);
 
             // Mese?ni prihodi i rashodi
-            Panel cardMeseci = CreateCard(scroll, "??  Mese?ni prihodi i rashodi (€)", ref y, 320);
+            Panel cardMeseci = Kartica(scroll, "Mesecni prihodi i rashodi (€)", ref y, 320);
             BuildMesecniGrid(cardMeseci);
 
             // Dodatni stavke
-            Panel cardDodatni = CreateCard(scroll, "?  Dodatne stavke (prihodi / rashodi)", ref y, 230);
+            Panel cardDodatni = Kartica(scroll, "Dodatne stavke (prihodi / rashodi)", ref y, 230);
             BuildDodatneStavke(cardDodatni);
 
             // Dugme Izra?unaj
             Button btnCalc = new Button
             {
-                Text = "??  IZRA?UNAJ ANALIZU",
+                Text = "IZRACUNAJ ANALIZU",
                 Font = new Font("Segoe UI", 12f, FontStyle.Bold),
-                BackColor = ColorPrimary,
+                BackColor = Primarna_boja,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Size = new Size(260, 46),
@@ -136,64 +122,51 @@ namespace Aplikacija_za_finansiije
                 Cursor = Cursors.Hand
             };
             btnCalc.FlatAppearance.BorderSize = 0;
-            btnCalc.Click += BtnCalc_Click;
+            btnCalc.Click += IzracunajAnalizu;
             scroll.Controls.Add(btnCalc);
 
             tab.Controls.Add(scroll);
         }
 
-        private Panel CreateCard(Panel parent, string title, ref int y, int height)
+        Panel Kartica(Panel parent, string title, ref int y, int height)
         {
             Panel card = new Panel
             {
                 Location = new Point(15, y),
                 Size = new Size(parent.Width - 50, height),
-                BackColor = ColorCard,
+                BackColor = Bela,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
-            card.Paint += (s, e) =>
-            {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using (Pen p = new Pen(Color.FromArgb(220, 230, 245), 1))
-                    e.Graphics.DrawRectangle(p, 0, 0, card.Width - 1, card.Height - 1);
-            };
+            
 
-            Label lbl = new Label
+            card.Controls.Add(new Label
             {
                 Text = title,
                 Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                ForeColor = ColorPrimary,
+                ForeColor = Primarna_boja,
                 AutoSize = true,
                 Location = new Point(12, 10)
-            };
-            Panel divider = new Panel
-            {
-                Location = new Point(12, 30),
-                Size = new Size(card.Width - 24, 2),
-                BackColor = Color.FromArgb(230, 238, 248)
-            };
-            card.Controls.Add(lbl);
-            card.Controls.Add(divider);
+            });
             parent.Controls.Add(card);
             y += height + 15;
             return card;
         }
 
-        private Label AddLabelInCard(Panel card, string text, int x, int y)
+        Label Pravi_Label(Panel card, string text, int x, int y)
         {
-            Label l = new Label { Text = text, AutoSize = true, Location = new Point(x, y), ForeColor = ColorText, Font = new Font("Segoe UI", 9f) };
+            Label l = new Label { Text = text, AutoSize = true, Location = new Point(x, y), ForeColor = Tekst_boja, Font = new Font("Segoe UI", 9f) };
             card.Controls.Add(l);
             return l;
         }
 
-        private TextBox AddTextBoxInCard(Panel card, int x, int y, int width)
+        TextBox Pravi_TextBox(Panel card, int x, int y, int width)
         {
             TextBox tb = new TextBox { Location = new Point(x, y), Size = new Size(width, 26), Font = new Font("Segoe UI", 10f), BorderStyle = BorderStyle.FixedSingle };
             card.Controls.Add(tb);
             return tb;
         }
 
-        private void BuildMesecniGrid(Panel card)
+        void BuildMesecniGrid(Panel card)
         {
             int startX = 12, startY = 42;
             int colW = 75, rowH = 28, labelH = 18;
@@ -201,8 +174,8 @@ namespace Aplikacija_za_finansiije
             int rashodiY = prihodiY + rowH + 8;
 
             // Header row labels
-            Label lblPrihodiLbl = new Label { Text = "Prihodi (€):", ForeColor = ColorGreen, Font = new Font("Segoe UI", 9f, FontStyle.Bold), AutoSize = true, Location = new Point(startX, prihodiY + 5) };
-            Label lblRashodiLbl = new Label { Text = "Rashodi (€):", ForeColor = ColorRed, Font = new Font("Segoe UI", 9f, FontStyle.Bold), AutoSize = true, Location = new Point(startX, rashodiY + 5) };
+            Label lblPrihodiLbl = new Label { Text = "Prihodi (€):", ForeColor = Zelena, Font = new Font("Segoe UI", 9f, FontStyle.Bold), AutoSize = true, Location = new Point(startX, prihodiY + 5) };
+            Label lblRashodiLbl = new Label { Text = "Rashodi (€):", ForeColor = Crvena, Font = new Font("Segoe UI", 9f, FontStyle.Bold), AutoSize = true, Location = new Point(startX, rashodiY + 5) };
             card.Controls.Add(lblPrihodiLbl);
             card.Controls.Add(lblRashodiLbl);
 
@@ -217,7 +190,7 @@ namespace Aplikacija_za_finansiije
                 {
                     Text = meseci[i],
                     Font = new Font("Segoe UI", 8f, FontStyle.Bold),
-                    ForeColor = ColorPrimary,
+                    ForeColor = Primarna_boja,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Size = new Size(colW, labelH),
                     Location = new Point(x, startY)
@@ -254,8 +227,8 @@ namespace Aplikacija_za_finansiije
             // Porez napomena
             Label lblPorezNote = new Label
             {
-                Text = "* Porez 10% se automatski obra?unava na ukupne prihode",
-                ForeColor = ColorMuted,
+                Text = "* Porez 10% se automatski obracunava na ukupne prihode",
+                ForeColor = Svetlo_plava,
                 Font = new Font("Segoe UI", 8f, FontStyle.Italic),
                 AutoSize = true,
                 Location = new Point(startX, rashodiY + rowH + 12)
@@ -269,9 +242,9 @@ namespace Aplikacija_za_finansiije
             int startY = 42;
             int rowH = 30;
 
-            Label h1 = new Label { Text = "Opis", Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = ColorMuted, AutoSize = true, Location = new Point(12, startY - 18) };
-            Label h2 = new Label { Text = "Iznos (€)", Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = ColorMuted, AutoSize = true, Location = new Point(230, startY - 18) };
-            Label h3 = new Label { Text = "Tip", Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = ColorMuted, AutoSize = true, Location = new Point(340, startY - 18) };
+            Label h1 = new Label { Text = "Opis", Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Svetlo_plava, AutoSize = true, Location = new Point(12, startY - 18) };
+            Label h2 = new Label { Text = "Iznos (€)", Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Svetlo_plava, AutoSize = true, Location = new Point(230, startY - 18) };
+            Label h3 = new Label { Text = "Tip", Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Svetlo_plava, AutoSize = true, Location = new Point(340, startY - 18) };
             card.Controls.Add(h1); card.Controls.Add(h2); card.Controls.Add(h3);
 
             for (int i = 0; i < 5; i++)
@@ -284,12 +257,12 @@ namespace Aplikacija_za_finansiije
                     Size = new Size(200, 26),
                     Font = new Font("Segoe UI", 9f),
                     BorderStyle = BorderStyle.FixedSingle,
-                    ForeColor = ColorMuted,
+                    ForeColor = Svetlo_plava,
                     Text = opisPlaceholder[i]
                 };
                 int idx = i;
-                tbDodatniOpis[i].GotFocus += (s, e) => { if (tbDodatniOpis[idx].ForeColor == ColorMuted) { tbDodatniOpis[idx].Text = ""; tbDodatniOpis[idx].ForeColor = ColorText; } };
-                tbDodatniOpis[i].LostFocus += (s, e) => { if (string.IsNullOrWhiteSpace(tbDodatniOpis[idx].Text)) { tbDodatniOpis[idx].Text = opisPlaceholder[idx]; tbDodatniOpis[idx].ForeColor = ColorMuted; } };
+                tbDodatniOpis[i].GotFocus += (s, e) => { if (tbDodatniOpis[idx].ForeColor == Svetlo_plava) { tbDodatniOpis[idx].Text = ""; tbDodatniOpis[idx].ForeColor = Tekst_boja; } };
+                tbDodatniOpis[i].LostFocus += (s, e) => { if (string.IsNullOrWhiteSpace(tbDodatniOpis[idx].Text)) { tbDodatniOpis[idx].Text = opisPlaceholder[idx]; tbDodatniOpis[idx].ForeColor = Svetlo_plava; } };
                 card.Controls.Add(tbDodatniOpis[i]);
 
                 tbDodatniIznos[i] = new TextBox
@@ -317,7 +290,7 @@ namespace Aplikacija_za_finansiije
             }
         }
 
-        private void BuildAnalizaTab(TabPage tab)
+        void AnalizaTab(TabPage tab)
         {
             Panel main = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
 
@@ -329,11 +302,11 @@ namespace Aplikacija_za_finansiije
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
 
-            lblUkupnoPrihodi = BuildSummaryCard(summaryRow, "Ukupni prihodi", "€0", ColorGreen, 0);
-            lblUkupnoRashodi = BuildSummaryCard(summaryRow, "Ukupni rashodi", "€0", ColorRed, 1);
-            lblPorez = BuildSummaryCard(summaryRow, "Porez (10%)", "€0", ColorGold, 2);
-            lblNeto = BuildSummaryCard(summaryRow, "Neto prihod", "€0", ColorPrimary, 3);
-            lblProsek = BuildSummaryCard(summaryRow, "Prosek/mesec", "€0", Color.FromArgb(147, 51, 234), 4);
+            lblUkupnoPrihodi = Build_5_kartica(summaryRow, "Ukupni prihodi", "€0", Zelena, 0);
+            lblUkupnoRashodi = Build_5_kartica(summaryRow, "Ukupni rashodi", "€0", Crvena, 1);
+            lblPorez = Build_5_kartica(summaryRow, "Porez (10%)", "€0", Zlatna, 2);
+            lblNeto = Build_5_kartica(summaryRow, "Neto prihod", "€0", Primarna_boja, 3);
+            lblProsek = Build_5_kartica(summaryRow, "Prosek/mesec", "€0", Color.FromArgb(147, 51, 234), 4);
 
             main.Controls.Add(summaryRow);
 
@@ -342,10 +315,10 @@ namespace Aplikacija_za_finansiije
             {
                 Location = new Point(15, 140),
                 Size = new Size(tab.Width - 40, 420),
-                BackColor = ColorCard,
+                BackColor = Bela,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
-            chartCard.Paint += ChartCard_Paint;
+            chartCard.Paint += Boji_karticu;
             panelGrafikon = chartCard;
             main.Controls.Add(chartCard);
 
@@ -354,23 +327,23 @@ namespace Aplikacija_za_finansiije
             {
                 summaryRow.Width = tab.Width - 40;
                 chartCard.Width = tab.Width - 40;
-                RebuildSummaryCardSizes(summaryRow);
+                Rasporedjivanje_kartica(summaryRow);
                 chartCard.Invalidate();
             };
         }
 
-        private void RebuildSummaryCardSizes(Panel row)
+        void Rasporedjivanje_kartica(Panel red)
         {
-            int count = row.Controls.Count;
-            if (count == 0) return;
-            int w = (row.Width - (count - 1) * 8) / count;
-            for (int i = 0; i < count; i++)
-                row.Controls[i].SetBounds(i * (w + 8), 0, w, row.Height);
+            int br = red.Controls.Count;
+            if (br == 0) return;
+            int w = (red.Width - (br - 1) * 8) / br;
+            for (int i = 0; i < br; i++)
+                red.Controls[i].SetBounds(i * (w + 8), 0, w, red.Height);
         }
 
-        private Label BuildSummaryCard(Panel row, string title, string value, Color accent, int index)
+        Label Build_5_kartica(Panel red, string naslov, string vrednost, Color accent, int index)
         {
-            Panel card = new Panel { BackColor = ColorCard };
+            Panel card = new Panel { BackColor = Bela };
             card.Paint += (s, e) =>
             {
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -379,13 +352,13 @@ namespace Aplikacija_za_finansiije
                 using (Pen p = new Pen(Color.FromArgb(220, 230, 245)))
                     e.Graphics.DrawRectangle(p, 0, 0, card.Width - 1, card.Height - 1);
             };
-            row.Controls.Add(card);
+            red.Controls.Add(card);
 
             Label lblTitle = new Label
             {
-                Text = title.ToUpper(),
+                Text = naslov.ToUpper(),
                 Font = new Font("Segoe UI", 7.5f, FontStyle.Bold),
-                ForeColor = ColorMuted,
+                ForeColor = Svetlo_plava,
                 AutoSize = false,
                 Dock = DockStyle.None,
                 Location = new Point(10, 14),
@@ -393,7 +366,7 @@ namespace Aplikacija_za_finansiije
             };
             Label lblValue = new Label
             {
-                Text = value,
+                Text = vrednost,
                 Font = new Font("Segoe UI", 18f, FontStyle.Bold),
                 ForeColor = accent,
                 AutoSize = false,
@@ -415,11 +388,11 @@ namespace Aplikacija_za_finansiije
 
         // ==================== Grafikon ====================
 
-        private double[] _chartPrihodi = new double[12];
-        private double[] _chartRashodi = new double[12];
-        private string _chartIme = "";
+        double[] _chartPrihodi = new double[12];
+        double[] _chartRashodi = new double[12];
+        string _chartIme = "";
 
-        private void ChartCard_Paint(object sender, PaintEventArgs e)
+        void Boji_karticu(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -434,8 +407,8 @@ namespace Aplikacija_za_finansiije
 
             // Title
             using (Font fTitle = new Font("Segoe UI", 12f, FontStyle.Bold))
-            using (SolidBrush br = new SolidBrush(ColorText))
-                g.DrawString($"Mese?na analiza  {_chartIme}", fTitle, br, padL, 14);
+            using (SolidBrush br = new SolidBrush(Tekst_boja))
+                g.DrawString($"Mesecna analiza  {_chartIme}", fTitle, br, padL, 14);
 
             // Background grid
             double maxVal = 0;
@@ -446,7 +419,7 @@ namespace Aplikacija_za_finansiije
             int gridLines = 5;
             using (Pen gridPen = new Pen(Color.FromArgb(235, 240, 248), 1))
             using (Font fGrid = new Font("Segoe UI", 7.5f))
-            using (SolidBrush gridBr = new SolidBrush(ColorMuted))
+            using (SolidBrush gridBr = new SolidBrush(Svetlo_plava))
             {
                 for (int i = 0; i <= gridLines; i++)
                 {
@@ -469,7 +442,7 @@ namespace Aplikacija_za_finansiije
 
             using (Font fLbl = new Font("Segoe UI", 7.5f))
             using (Font fMonth = new Font("Segoe UI", 8f, FontStyle.Bold))
-            using (SolidBrush monthBr = new SolidBrush(ColorText))
+            using (SolidBrush monthBr = new SolidBrush(Tekst_boja))
             using (StringFormat sfCenter = new StringFormat { Alignment = StringAlignment.Center })
             {
                 for (int i = 0; i < 12; i++)
@@ -491,7 +464,7 @@ namespace Aplikacija_za_finansiije
 
                         // Value label
                         string valStr = "€" + ((int)_chartPrihodi[i]).ToString("N0");
-                        using (SolidBrush vbr = new SolidBrush(ColorGreen))
+                        using (SolidBrush vbr = new SolidBrush(Zelena))
                             g.DrawString(valStr, fLbl, vbr, xPrihod + (int)barW / 2, yPrihod - 14, sfCenter);
                     }
 
@@ -507,7 +480,7 @@ namespace Aplikacija_za_finansiije
                             g.FillRectangle(lgb, rR);
 
                         string valStr = "€" + ((int)_chartRashodi[i]).ToString("N0");
-                        using (SolidBrush vbr = new SolidBrush(ColorRed))
+                        using (SolidBrush vbr = new SolidBrush(Crvena))
                             g.DrawString(valStr, fLbl, vbr, xRashod + (int)barW / 2, yRashod - 14, sfCenter);
                     }
 
@@ -518,22 +491,22 @@ namespace Aplikacija_za_finansiije
 
             // Legend
             int legX = padL + 10, legY = 14;
-            DrawLegendItem(g, legX + 180, legY, ColorGreen, "Prihodi");
-            DrawLegendItem(g, legX + 300, legY, ColorRed, "Rashodi");
+            Crta_objekat(g, legX + 180, legY, Zelena, "Prihodi");
+            Crta_objekat (g, legX + 300, legY, Crvena, "Rashodi");
         }
 
-        private void DrawLegendItem(Graphics g, int x, int y, Color color, string text)
+        private void Crta_objekat(Graphics g, int x, int y, Color color, string text)
         {
             using (SolidBrush sb = new SolidBrush(color))
                 g.FillRectangle(sb, x, y + 2, 14, 14);
             using (Font f = new Font("Segoe UI", 9f))
-            using (SolidBrush tb = new SolidBrush(ColorText))
+            using (SolidBrush tb = new SolidBrush(Tekst_boja))
                 g.DrawString(text, f, tb, x + 18, y);
         }
 
-        // ==================== Izra?unaj ====================
+        
 
-        private void BtnCalc_Click(object sender, EventArgs e)
+        void IzracunajAnalizu(object sender, EventArgs e)
         {
             string ime = tbIme.Text.Trim();
             string prezime = tbPrezime.Text.Trim();
@@ -579,7 +552,7 @@ namespace Aplikacija_za_finansiije
             lblUkupnoRashodi.Text = "€" + ukupnoRashodi.ToString("N0");
             lblPorez.Text = "€" + porez.ToString("N0");
             lblNeto.Text = "€" + neto.ToString("N0");
-            lblNeto.ForeColor = neto >= 0 ? ColorGreen : ColorRed;
+            lblNeto.ForeColor = neto >= 0 ? Zelena : Crvena;
             lblProsek.Text = "€" + prosek.ToString("N0");
 
             // Grafikon

@@ -1,25 +1,16 @@
-﻿namespace Aplikacija_za_finansiije
+﻿namespace Aplikacija_za_finansije
 {
     partial class Form1
     {
-        private System.ComponentModel.IContainer components = null;
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-                components.Dispose();
-            base.Dispose(disposing);
-        }
+        
 
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1200, 820);
-            this.Name = "Form1";
-            this.Text = "Finansijski Menadžment";
-            this.ResumeLayout(false);
+            SuspendLayout();
+            ClientSize = new Size(811, 403);
+            Name = "Form1";
+            ResumeLayout(false);
+            
         }
     }
 }
